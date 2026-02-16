@@ -110,7 +110,10 @@ export function PromptInput({
           scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent
           ${disabled ? 'cursor-not-allowed' : 'cursor-text'}
         `}
-        style={{ minHeight: MIN_HEIGHT }}
+        style={{ 
+          minHeight: MIN_HEIGHT,
+          pointerEvents: disabled || loading ? 'none' : 'auto'
+        }}
         rows={4}
       />
 

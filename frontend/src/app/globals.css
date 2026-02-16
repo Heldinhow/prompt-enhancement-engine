@@ -158,9 +158,9 @@ textarea {
   padding: 1rem;
 }
 
-/* Focus ring animation */
+/* Focus ring - subtle */
 textarea:focus {
-  animation: pulse-ring 2s infinite;
+  outline: none;
 }
 
 /* Placeholder styling */
