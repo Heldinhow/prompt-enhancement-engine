@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Pge1UfoFopY=",
+  "dgSpecHash": "hURerfTq7Xc=",
   "success": true,
-  "projectFilePath": "/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Api/PEE.Api.csproj",
+  "projectFilePath": "/root/.openclaw/workspace/projects/prompt-enhancement-engine/src/PEE.Api/PEE.Api.csproj",
   "expectedPackageFiles": [
     "/root/.nuget/packages/mediatr/14.0.0/mediatr.14.0.0.nupkg.sha512",
     "/root/.nuget/packages/mediatr.contracts/2.0.1/mediatr.contracts.2.0.1.nupkg.sha512",

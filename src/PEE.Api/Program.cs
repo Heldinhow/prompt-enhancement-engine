@@ -4,7 +4,6 @@ using PEE.Core.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddHttpClient<PromptEnhancementService>();
 builder.Services.AddSingleton<PromptEnhancementService>();
 
 var app = builder.Build();

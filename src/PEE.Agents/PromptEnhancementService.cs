@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Net.Security;
+using System.Security.Authentication;
 using PEE.Core.Entities;
 
 namespace PEE.Agents;
@@ -8,13 +10,26 @@ public class PromptEnhancementService
 {
     private readonly ILogger<PromptEnhancementService> _logger;
     private readonly string _apiKey;
+    private readonly string _groupId;
     private readonly HttpClient _httpClient;
+    private const string BaseUrl = "https://api.minimax.io/v1";
+    private const string BaseIpUrl = "https://api.minimax.io/v1";
 
-    public PromptEnhancementService(ILogger<PromptEnhancementService> logger, HttpClient httpClient)
+    public PromptEnhancementService(ILogger<PromptEnhancementService> logger)
     {
         _logger = logger;
         _apiKey = Environment.GetEnvironmentVariable("MINIMAX_API_KEY") ?? "";
-        _httpClient = httpClient;
+        _groupId = Environment.GetEnvironmentVariable("MINIMAX_GROUP_ID") ?? "";
+        
+        // Use HttpClientHandler with explicit settings
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        _httpClient = new HttpClient(handler)
+        {
+            Timeout = TimeSpan.FromSeconds(45)
+        };
     }
 
     public async Task<PromptResponse> EnhanceAsync(PromptRequest request, CancellationToken ct = default)
@@ -44,11 +59,25 @@ public class PromptEnhancementService
         };
     }
 
+    private string BuildApiUrl()
+    {
+        var endpoint = "/text/chatcompletion_v2";
+        var baseUrl = BaseUrl;
+        
+        if (!string.IsNullOrWhiteSpace(_groupId))
+        {
+            return $"{baseUrl}{endpoint}?GroupId={_groupId}";
+        }
+        
+        return $"{baseUrl}{endpoint}";
+    }
+
     private async Task<string> CallMiniMaxAsync(string input, string mode, CancellationToken ct)
     {
         // If no API key, return a structured template
         if (string.IsNullOrEmpty(_apiKey))
         {
+            _logger.LogWarning("[MiniMax] No API key found, using template fallback");
             return GenerateStructuredPrompt(input, mode);
         }
 
@@ -91,7 +120,7 @@ Não inclui: [list]
         {
             var request = new
             {
-                model = "MiniMax-M2.1",
+                model = "MiniMax-M2.5",
                 messages = new[]
                 {
                     new { role = "system", content = systemPrompt },
@@ -106,16 +135,38 @@ Não inclui: [list]
             
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("Host", "api.minimax.io");
 
-            var response = await _httpClient.PostAsync("https://api.minimax.chat/v1/text/chatcompletion_v2", content, ct);
-            var responseJson = await response.Content.ReadAsStringAsync(ct);
+            var apiUrl = BuildApiUrl();
+            _logger.LogInformation("[MiniMax] Calling API at: {Url}", apiUrl);
+
+            var response = await _httpClient.PostAsync(apiUrl, content);
+            var responseJson = await response.Content.ReadAsStringAsync();
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("[MiniMax] API error: {StatusCode} - {Response}", response.StatusCode, responseJson);
+                return GenerateStructuredPrompt(input, mode);
+            }
             
             var result = JsonSerializer.Deserialize<JsonElement>(responseJson);
-            return result.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? GenerateStructuredPrompt(input, mode);
+            
+            if (result.TryGetProperty("choices", out var choices) && choices.GetArrayLength() > 0)
+            {
+                var firstChoice = choices[0];
+                if (firstChoice.TryGetProperty("message", out var message) && message.TryGetProperty("content", out var contentProp))
+                {
+                    _logger.LogInformation("[MiniMax] Successfully used real API");
+                    return contentProp.GetString() ?? GenerateStructuredPrompt(input, mode);
+                }
+            }
+            
+            _logger.LogWarning("[MiniMax] Invalid response format, using fallback");
+            return GenerateStructuredPrompt(input, mode);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "MiniMax API call failed");
+            _logger.LogError(ex, "[MiniMax] API call failed, using fallback");
             return GenerateStructuredPrompt(input, mode);
         }
     }

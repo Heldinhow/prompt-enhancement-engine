@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PEE.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b69098f6975b87cafa518832aa1033ab86f5a238")]
 [assembly: System.Reflection.AssemblyProductAttribute("PEE.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PEE.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

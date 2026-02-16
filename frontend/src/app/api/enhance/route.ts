@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
-const MINIMAX_BASE_URL = 'https://api.minimax.chat/v1';
+const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID;
+const MINIMAX_BASE_URL = 'https://api.minimax.io/v1';
 
 interface PromptScore {
   clarity: number;
@@ -103,6 +104,17 @@ Resposta estruturada com explicações
 - Solicitações ambíguas: pedir esclarecimento`;
 }
 
+function buildApiUrl(): string {
+  const baseUrl = MINIMAX_BASE_URL;
+  const endpoint = '/text/chatcompletion_v2';
+  
+  if (MINIMAX_GROUP_ID && MINIMAX_GROUP_ID.trim() !== '') {
+    return `${baseUrl}${endpoint}?GroupId=${MINIMAX_GROUP_ID}`;
+  }
+  
+  return `${baseUrl}${endpoint}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { input, mode = 'general' } = await req.json();
@@ -112,17 +124,22 @@ export async function POST(req: NextRequest) {
     }
 
     let optimizedPrompt: string;
+    let usedRealApi = false;
 
-    if (MINIMAX_API_KEY) {
+    // Use real MiniMax API if key is available
+    if (MINIMAX_API_KEY && MINIMAX_API_KEY.trim() !== '') {
       try {
-        const response = await fetch(`${MINIMAX_BASE_URL}/text/chatcompletion_v2`, {
+        console.log('[MiniMax] Calling real MiniMax API...');
+        console.log('[MiniMax] API URL:', buildApiUrl());
+        
+        const response = await fetch(buildApiUrl(), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${MINIMAX_API_KEY}`,
           },
           body: JSON.stringify({
-            model: 'MiniMax-M2.1',
+            model: 'MiniMax-M2.5-Lightning',
             messages: [
               { role: 'system', content: SYSTEM_PROMPT },
               { role: 'user', content: `Input original: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
@@ -132,18 +149,28 @@ export async function POST(req: NextRequest) {
           }),
         });
 
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[MiniMax] API error:', response.status, errorText);
+          throw new Error(`MiniMax API returned ${response.status}`);
+        }
+
         const data = await response.json();
         
-        if (data.choices && data.choices[0]) {
+        if (data.choices && data.choices[0] && data.choices[0].message) {
           optimizedPrompt = data.choices[0].message.content;
+          usedRealApi = true;
+          console.log('[MiniMax] Successfully used real API');
         } else {
-          throw new Error('Invalid response');
+          console.warn('[MiniMax] Invalid response format, using fallback');
+          throw new Error('Invalid response format');
         }
       } catch (apiError) {
-        console.error('MiniMax API error:', apiError);
+        console.error('[MiniMax] API call failed, using fallback:', apiError);
         optimizedPrompt = generateStructuredPrompt(input, mode);
       }
     } else {
+      console.warn('[MiniMax] No API key found, using template fallback');
       optimizedPrompt = generateStructuredPrompt(input, mode);
     }
 
@@ -151,21 +178,32 @@ export async function POST(req: NextRequest) {
     const lines = optimizedPrompt.split('\n').filter(l => l.trimStart().startsWith('#')).slice(0, 3);
     const compactVersion = lines.map(l => l.replace(/^#+\s*/, '').trim()).join(' → ');
 
+    const improvements = usedRealApi
+      ? [
+          'Intent extraction',
+          'Domain context enrichment',
+          'Structural optimization',
+          `Quality scoring (${score.final_score.toFixed(1)})`,
+          'MiniMax M2.1 enhancement'
+        ]
+      : [
+          'Intent extraction',
+          'Domain context enrichment',
+          'Structural optimization',
+          `Quality scoring (${score.final_score.toFixed(1)})`,
+          'Template-based (no API key)'
+        ];
+
     const result: PromptResponse = {
       optimized_prompt: optimizedPrompt,
-      improvements_applied: [
-        'Intent extraction',
-        'Domain context enrichment',
-        'Structural optimization',
-        `Quality scoring (${score.final_score.toFixed(1)})`,
-      ],
+      improvements_applied: improvements,
       score,
       compact_version: compactVersion,
     };
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('[Enhance] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

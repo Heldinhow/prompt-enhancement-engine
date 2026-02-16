@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
+      "projectUniqueName": "/root/.openclaw/workspace/projects/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
       "projectName": "PEE.Core",
-      "projectPath": "/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
+      "projectPath": "/root/.openclaw/workspace/projects/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/",
+      "outputPath": "/root/.openclaw/workspace/projects/prompt-enhancement-engine/src/PEE.Core/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"

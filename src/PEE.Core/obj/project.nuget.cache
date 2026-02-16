@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4iQ4lArZ+wk=",
+  "dgSpecHash": "t/6Hiqptqi8=",
   "success": true,
-  "projectFilePath": "/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
+  "projectFilePath": "/root/.openclaw/workspace/projects/prompt-enhancement-engine/src/PEE.Core/PEE.Core.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
