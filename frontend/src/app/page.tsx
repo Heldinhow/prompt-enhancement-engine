@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Sparkles, Copy, Check, Zap, Target, Layers, Brain, Wand2, FileText, Gauge } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Sparkles, Copy, Check, Zap, Target, Layers, Brain, Wand2, FileText, Gauge, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface PromptScore {
   clarity: number;
@@ -38,13 +38,26 @@ const STATUS_MESSAGES = [
   { key: 'Calculating quality score...', icon: Gauge, color: 'text-green-400' },
 ];
 
+// Placeholder examples
+const PLACEHOLDER_EXAMPLES = [
+  "Create a Python script that fetches data from an API and saves it to a CSV file",
+  "Write a marketing email for a new eco-friendly product launch",
+  "Design a database schema for a task management application",
+  "Explain quantum computing to a 10-year-old",
+];
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState('general');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PromptResponse | null>(null);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    score: true,
+    improvements: true,
+    optimized: true,
+  });
   
   // Streaming state
   const [streamingContent, setStreamingContent] = useState('');
@@ -54,6 +67,21 @@ export default function Home() {
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
   
   const streamingContentRef = useRef<HTMLPreElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(Math.max(textarea.scrollHeight, 120), 400) + 'px';
+    }
+  }, []);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
 
   // Auto-scroll streaming content
   useEffect(() => {
@@ -61,6 +89,16 @@ export default function Home() {
       streamingContentRef.current.scrollTop = streamingContentRef.current.scrollHeight;
     }
   }, [streamingContent]);
+
+  // Keyboard shortcut handler
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!loading && input.trim()) {
+        enhance();
+      }
+    }
+  };
 
   const enhance = async () => {
     if (!input.trim()) return;
@@ -71,6 +109,12 @@ export default function Home() {
     setStreamingContent('');
     setCurrentStatus('Initializing...');
     setShowTypingIndicator(true);
+    setExpandedSections({ score: true, improvements: true, optimized: true });
+
+    // Focus on result area
+    setTimeout(() => {
+      document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 
     try {
       const response = await fetch('/api/enhance/stream', {
@@ -129,13 +173,14 @@ export default function Home() {
     }
   };
 
-  const copyToClipboard = () => {
-    const textToCopy = result?.optimized_prompt || streamingContent;
-    if (textToCopy) {
-      navigator.clipboard.writeText(textToCopy);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const copyToClipboard = (text: string, section: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(section);
+    setTimeout(() => setCopied(null), 2500);
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   const getScoreColor = (score: number) => {
@@ -145,27 +190,34 @@ export default function Home() {
   };
 
   const getScoreBg = (score: number) => {
-    if (score >= 8) return 'bg-emerald-400/10 border-emerald-400/20';
-    if (score >= 6) return 'bg-yellow-400/10 border-yellow-400/20';
-    return 'bg-red-400/10 border-red-400/20';
+    if (score >= 8) return 'bg-emerald-500/10 border-emerald-500/20';
+    if (score >= 6) return 'bg-yellow-500/10 border-yellow-500/20';
+    return 'bg-red-500/10 border-red-500/20';
+  };
+
+  const getScoreRing = (score: number) => {
+    if (score >= 8) return 'ring-emerald-500/30';
+    if (score >= 6) return 'ring-yellow-500/30';
+    return 'ring-red-500/30';
   };
 
   // Determine if we're in streaming mode (content coming in but no final result yet)
   const isStreaming = loading && (streamingContent || currentStatus);
+  const charCount = input.length;
+  const maxChars = 4000;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
-      {/* Factory-style: minimal dark with clean lines */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         
-        {/* Header - Factory style */}
-        <div className="text-center mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 mb-6 sm:mb-8 font-mono">
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 mb-5 sm:mb-6 font-mono tracking-wider">
             <Sparkles className="w-3 h-3" />
             PROMPT ENHANCEMENT ENGINE
           </div>
           
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal tracking-tight mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal tracking-tight mb-3 sm:mb-4">
             Transform prompts into
             <br />
             <span className="text-purple-400">structured instructions</span>
@@ -175,64 +227,82 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Input Section - Clean with subtle border */}
-        <div className="mb-8 sm:mb-12">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.ctrlKey && !loading && input.trim()) {
-                enhance();
-              }
-            }}
-            placeholder="Describe what you want the AI agent to do..."
-            className="w-full bg-black border border-white/10 rounded-lg p-4 text-white placeholder-gray-600 focus:outline-none focus:border-white/20 transition-colors resize-none font-mono text-sm min-h-[100px]"
-            rows={4}
-          />
+        {/* Input Section */}
+        <div className="mb-6 sm:mb-10">
+          <div className={`relative transition-all duration-200 ${isFocused ? 'ring-2 ring-purple-500/40 rounded-lg' : ''}`}>
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value.slice(0, maxChars))}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={PLACEHOLDER_EXAMPLES[Math.floor(Math.random() * PLACEHOLDER_EXAMPLES.length)]}
+              className="w-full bg-zinc-900/80 border border-white/10 rounded-lg p-4 pr-16 text-white placeholder-gray-500 focus:outline-none resize-none font-mono text-sm transition-all duration-200"
+              style={{ minHeight: '120px', height: '120px' }}
+              disabled={loading}
+              aria-label="Enter your prompt to enhance"
+            />
+            
+            {/* Character counter */}
+            <div className="absolute bottom-3 right-4 text-xs font-mono text-gray-600">
+              <span className={charCount > maxChars * 0.9 ? 'text-red-400' : ''}>
+                {charCount}
+              </span>
+              <span className="text-gray-700">/{maxChars}</span>
+            </div>
+          </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-4">
-            <div className="flex gap-1 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4">
+            {/* Mode selector with horizontal scroll on mobile */}
+            <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0">
               {MODES.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setMode(m.value)}
-                  className={`px-3 py-2 sm:py-1.5 rounded text-xs font-mono transition-colors whitespace-nowrap min-h-[44px] ${
+                  disabled={loading}
+                  className={`px-3 py-2 sm:py-1.5 rounded text-xs font-mono transition-all duration-150 whitespace-nowrap min-h-[44px] flex items-center ${
                     mode === m.value
                       ? 'bg-white text-black'
-                      : 'text-gray-500 hover:text-white'
-                  }`}
+                      : 'text-gray-500 hover:text-white hover:bg-white/5'
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {m.label}
                 </button>
               ))}
             </div>
             
+            {/* Submit button - always visible */}
             <button
               onClick={enhance}
               disabled={loading || !input.trim()}
-              className="px-6 py-3 sm:py-2 bg-white text-black rounded text-sm font-mono hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+              className="px-8 py-3.5 sm:py-2.5 bg-white text-black rounded-lg text-sm font-semibold font-mono hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2 min-h-[52px] sm:min-h-[44px] active:scale-[0.98] shadow-lg shadow-white/5"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  STREAMING
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  PROCESSING
                 </span>
               ) : (
                 <>
-                  <Zap className="w-3 h-3" />
-                  ENHANCE
+                  <Zap className="w-4 h-4" />
+                  ENHANCE PROMPT
                 </>
               )}
             </button>
           </div>
+
+          {/* Keyboard shortcut hint */}
+          <p className="text-xs text-gray-600 mt-3 text-center sm:text-left">
+            Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Enter</kbd> to submit • <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Shift+Enter</kbd> for new line
+          </p>
         </div>
 
         {/* Processing Status Indicator */}
         {loading && (
-          <div className="mb-6 p-4 rounded-lg bg-white/5 border border-white/10 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="mb-6 p-4 rounded-lg bg-zinc-900/80 border border-white/10 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center gap-3">
-              {/* Animated status icon */}
-              <div className={`p-2 rounded-full bg-white/10 ${statusColor}`}>
+              <div className={`p-2.5 rounded-full bg-white/10 ${statusColor}`}>
                 {loading && (
                   <div className="w-5 h-5">
                     <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
@@ -246,7 +316,6 @@ export default function Home() {
               <div className="flex-1">
                 <div className="text-xs font-mono text-gray-500 mb-1">PROCESSING</div>
                 <div className={`text-sm font-mono ${statusColor} flex items-center gap-2`}>
-                  {/* Typing dots animation */}
                   {showTypingIndicator && (
                     <span className="flex gap-0.5">
                       <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -258,8 +327,7 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Progress indicator */}
-              <div className="hidden sm:block w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div className="hidden sm:block w-28 h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-purple-400 transition-all duration-300 ease-out"
                   style={{ 
@@ -274,15 +342,15 @@ export default function Home() {
 
         {/* Error */}
         {error && (
-          <div className="mb-6 sm:mb-8 p-3 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-mono">
-            {error}
+          <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-mono animate-in fade-in slide-in-from-top-2">
+            <span className="font-semibold">Error:</span> {error}
           </div>
         )}
 
         {/* Streaming Content Preview */}
         {isStreaming && streamingContent && (
-          <div className="mb-6 sm:mb-8 border border-purple-500/30 rounded-lg overflow-hidden animate-in fade-in duration-300">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-purple-500/30 bg-purple-500/5">
+          <div className="mb-6 border border-purple-500/20 rounded-xl overflow-hidden animate-in fade-in duration-300" id="result-section">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-purple-500/20 bg-purple-500/5">
               <span className="text-xs font-mono text-purple-400 flex items-center gap-2">
                 <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
                 STREAMING PREVIEW
@@ -293,10 +361,9 @@ export default function Home() {
             </div>
             <pre 
               ref={streamingContentRef}
-              className="p-4 text-xs sm:text-sm font-mono text-gray-300 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto"
+              className="p-4 text-xs sm:text-sm font-mono text-gray-300 whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto custom-scrollbar"
             >
               {streamingContent}
-              {/* Blinking cursor */}
               <span className="inline-block w-0.5 h-4 bg-purple-400 animate-pulse ml-0.5" />
             </pre>
           </div>
@@ -304,74 +371,178 @@ export default function Home() {
 
         {/* Final Result */}
         {result && !loading && (
-          <div className="space-y-4 animate-in fade-in duration-500">
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500" id="result-section">
             
-            {/* Score - Factory style minimal */}
-            <div className={`border rounded-lg p-4 sm:p-6 ${getScoreBg(result.score.final_score)}`}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-mono text-gray-500">QUALITY SCORE</span>
-                <span className={`text-2xl font-mono ${getScoreColor(result.score.final_score)}`}>
-                  {result.score.final_score.toFixed(1)}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                {[
-                  { label: 'CLARITY', value: result.score.clarity, key: 'clarity' },
-                  { label: 'SPECIFIC', value: result.score.specificity, key: 'specificity' },
-                  { label: 'EXECUTE', value: result.score.executability, key: 'executability' },
-                  { label: 'AMBIG', value: result.score.ambiguity_control, key: 'ambiguity_control' },
-                  { label: 'STRUCT', value: result.score.structure, key: 'structure' },
-                ].map((item) => (
-                  <div key={item.key} className="text-center p-2 sm:p-3 rounded bg-white/5 min-h-[70px] flex flex-col justify-center">
-                    <div className={`text-lg sm:text-xl font-mono ${getScoreColor(item.value)}`}>
-                      {item.value.toFixed(0)}
-                    </div>
-                    <div className="text-[10px] sm:text-xs font-mono text-gray-600 mt-1">{item.label}</div>
+            {/* Score Section - Collapsible */}
+            <div className={`border rounded-xl overflow-hidden ${getScoreBg(result.score.final_score)} transition-all duration-300`}>
+              <button 
+                onClick={() => toggleSection('score')}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-white/10 ring-1 ${getScoreRing(result.score.final_score)}`}>
+                    <Gauge className={`w-5 h-5 ${getScoreColor(result.score.final_score)}`} />
                   </div>
-                ))}
-              </div>
+                  <div className="text-left">
+                    <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Quality Score</div>
+                    <div className={`text-3xl font-bold font-mono ${getScoreColor(result.score.final_score)}`}>
+                      {result.score.final_score.toFixed(1)}
+                      <span className="text-lg text-gray-500 font-normal">/10</span>
+                    </div>
+                  </div>
+                </div>
+                {expandedSections.score ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+              
+              {expandedSections.score && (
+                <div className="px-4 sm:px-5 pb-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
+                  {[
+                    { label: 'Clarity', value: result.score.clarity, key: 'clarity' },
+                    { label: 'Specificity', value: result.score.specificity, key: 'specificity' },
+                    { label: 'Executability', value: result.score.executability, key: 'executability' },
+                    { label: 'Ambiguity Control', value: result.score.ambiguity_control, key: 'ambiguity_control' },
+                    { label: 'Structure', value: result.score.structure, key: 'structure' },
+                  ].map((item) => (
+                    <div 
+                      key={item.key} 
+                      className="text-center p-3 sm:p-4 rounded-lg bg-white/5 border border-white/5 min-h-[80px] flex flex-col justify-center"
+                    >
+                      <div className={`text-xl sm:text-2xl font-bold font-mono ${getScoreColor(item.value)}`}>
+                        {item.value.toFixed(0)}
+                      </div>
+                      <div className="text-[10px] sm:text-xs font-mono text-gray-500 mt-1 uppercase tracking-wider">{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Improvements */}
-            <div className="flex flex-wrap gap-2">
-              {result.improvements_applied.map((imp, i) => (
-                <span 
-                  key={i} 
-                  className="px-2 py-1.5 rounded bg-white/5 text-xs font-mono text-gray-400 border border-white/10"
-                >
-                  {imp}
-                </span>
-              ))}
+            {/* Improvements Section - Collapsible */}
+            <div className="border border-white/10 rounded-xl overflow-hidden">
+              <button 
+                onClick={() => toggleSection('improvements')}
+                className="w-full flex items-center justify-between p-4 sm:p-4 hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-white/10">
+                    <Layers className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">
+                    {result.improvements_applied.length} Improvements Applied
+                  </span>
+                </div>
+                {expandedSections.improvements ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+              
+              {expandedSections.improvements && (
+                <div className="px-4 pb-4 flex flex-wrap gap-2">
+                  {result.improvements_applied.map((imp, i) => (
+                    <span 
+                      key={i} 
+                      className="px-3 py-2 rounded-lg bg-blue-500/10 text-blue-300 text-xs font-mono border border-blue-500/20"
+                    >
+                      {imp}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Optimized Prompt */}
-            <div className="border border-white/10 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
-                <span className="text-xs font-mono text-gray-500">OPTIMIZED PROMPT</span>
+            {/* Optimized Prompt Section - Always visible */}
+            <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-900/50">
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-white/10 bg-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/20">
+                    <Target className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Optimized Prompt</span>
+                </div>
                 <button
-                  onClick={copyToClipboard}
-                  className="flex items-center gap-1 text-xs font-mono text-gray-500 hover:text-white min-h-[36px] px-2"
+                  onClick={() => copyToClipboard(result.optimized_prompt, 'optimized')}
+                  className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-white min-h-[40px] px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
                 >
-                  {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                  {copied ? 'COPIED' : 'COPY'}
+                  {copied === 'optimized' ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-400">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
                 </button>
               </div>
-              <pre className="p-4 text-xs sm:text-sm font-mono text-gray-300 whitespace-pre-wrap leading-relaxed max-h-80 overflow-y-auto">
+              <pre className="p-4 sm:p-5 text-sm font-mono text-gray-300 whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto custom-scrollbar">
                 {result.optimized_prompt}
               </pre>
             </div>
 
-            {/* Compact */}
-            <div className="px-4 py-3 sm:py-2 bg-white/5 rounded border border-white/10">
-              <span className="text-xs font-mono text-gray-600">SHORT: </span>
-              <span className="text-xs font-mono text-gray-400">{result.compact_version}</span>
+            {/* Compact Version - Collapsible */}
+            <div className="border border-white/10 rounded-xl overflow-hidden">
+              <button 
+                onClick={() => toggleSection('compact')}
+                className="w-full flex items-center justify-between px-4 sm:px-5 py-3 hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-white/10">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Short Version</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard(result.compact_version, 'compact');
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-mono text-gray-500 hover:text-white min-h-[36px] px-2 py-1 rounded hover:bg-white/10 transition-colors mr-2"
+                  >
+                    {copied === 'compact' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                      </>
+                    )}
+                  </button>
+                  {expandedSections.compact !== undefined ? (
+                    expandedSections.compact ? (
+                      <ChevronUp className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                    )
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                  )}
+                </div>
+              </button>
+              
+              {expandedSections.compact !== false && (
+                <div className="px-4 sm:px-5 pb-4">
+                  <div className="p-4 bg-zinc-800/50 rounded-lg border border-white/5">
+                    <span className="text-sm font-mono text-gray-400">{result.compact_version}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Footer - Minimal */}
-        <div className="mt-12 sm:mt-20 text-center">
+        {/* Footer */}
+        <div className="mt-12 sm:mt-16 text-center">
           <p className="text-xs font-mono text-gray-700">
             POWERED BY MINIMAX M2.5 • STREAMING ENABLED
           </p>

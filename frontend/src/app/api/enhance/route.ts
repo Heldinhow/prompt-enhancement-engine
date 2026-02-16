@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
             'Authorization': `Bearer ${MINIMAX_API_KEY}`,
           },
           body: JSON.stringify({
-            model: 'MiniMax-M2.5-Lightning',
+            model: 'MiniMax-M2.5',
             messages: [
               { role: 'system', content: SYSTEM_PROMPT },
               { role: 'user', content: `Input original: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
