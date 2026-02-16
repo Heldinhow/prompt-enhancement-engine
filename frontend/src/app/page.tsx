@@ -69,13 +69,25 @@ export default function Home() {
   const streamingContentRef = useRef<HTMLPreElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    setMounted(true);
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Auto-resize textarea
   const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = Math.min(Math.max(textarea.scrollHeight, 120), 400) + 'px';
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, 120), 240);
+      textarea.style.height = newHeight + 'px';
     }
   }, []);
 
@@ -90,8 +102,9 @@ export default function Home() {
     }
   }, [streamingContent]);
 
-  // Keyboard shortcut handler
+  // Keyboard shortcut handler — desktop only (Enter=submit, Shift+Enter=newline)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isMobile) return; // mobile submits via button only
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (!loading && input.trim()) {
@@ -247,8 +260,18 @@ export default function Home() {
         </div>
 
         {/* Input Section */}
-        <div className="mb-6 sm:mb-10">
-          <div className={`relative transition-all duration-200 ${isFocused ? 'ring-2 ring-purple-500/40 rounded-lg' : ''}`}>
+        <div
+          className={`mb-6 sm:mb-10 w-full transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          {/* Input container — elevated dark bg, rounded, focus glow */}
+          <div
+            className={`relative w-full rounded-2xl sm:rounded-3xl bg-zinc-900/90 border transition-all duration-[180ms] ease-out ${
+              isFocused
+                ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)] ring-1 ring-purple-500/30'
+                : 'border-white/10 shadow-lg shadow-black/20'
+            }`}
+          >
             <textarea
               ref={textareaRef}
               value={input}
@@ -257,30 +280,52 @@ export default function Home() {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder={PLACEHOLDER_EXAMPLES[Math.floor(Math.random() * PLACEHOLDER_EXAMPLES.length)]}
-              className="w-full bg-zinc-900/80 border border-white/10 rounded-lg p-4 pr-16 text-white placeholder-gray-500 focus:outline-none resize-none font-mono text-sm transition-all duration-200"
-              style={{ minHeight: '120px', height: '120px' }}
+              className="w-full bg-transparent rounded-2xl sm:rounded-3xl p-4 sm:p-5 pb-14 text-white placeholder-gray-500 focus:outline-none resize-none font-mono text-base leading-relaxed transition-colors duration-[180ms] scroll-smooth"
+              style={{ minHeight: '120px', maxHeight: '240px', overflowY: 'auto' }}
               disabled={loading}
               aria-label="Enter your prompt to enhance"
             />
             
-            {/* Character counter */}
-            <div className="absolute bottom-3 right-4 text-xs font-mono text-gray-600">
-              <span className={charCount > maxChars * 0.9 ? 'text-red-400' : ''}>
-                {charCount}
+            {/* Bottom bar inside container: char counter + submit button */}
+            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-none">
+              {/* Character counter */}
+              <span className="text-xs font-mono select-none">
+                <span className={charCount > maxChars * 0.9 ? (charCount > maxChars * 0.95 ? 'text-red-400 font-semibold' : 'text-amber-400') : 'text-gray-600'}>
+                  {charCount}
+                </span>
+                <span className="text-gray-700"> / {maxChars}</span>
               </span>
-              <span className="text-gray-700">/{maxChars}</span>
+
+              {/* Submit button — always visible, bottom-right */}
+              <button
+                onClick={enhance}
+                disabled={loading || !input.trim()}
+                className="pointer-events-auto min-h-[44px] px-5 py-2.5 bg-white text-black rounded-xl text-sm font-semibold font-mono hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg shadow-white/5"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span className="hidden sm:inline">PROCESSING</span>
+                  </span>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    <span>ENHANCE</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
           
+          {/* Mode selector row */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4">
-            {/* Mode selector with horizontal scroll on mobile */}
             <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0">
               {MODES.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setMode(m.value)}
                   disabled={loading}
-                  className={`px-3 py-2 sm:py-1.5 rounded text-xs font-mono transition-all duration-150 whitespace-nowrap min-h-[44px] flex items-center ${
+                  className={`px-3 py-2 sm:py-1.5 rounded-lg text-xs font-mono transition-all duration-150 whitespace-nowrap min-h-[44px] flex items-center ${
                     mode === m.value
                       ? 'bg-white text-black'
                       : 'text-gray-500 hover:text-white hover:bg-white/5'
@@ -290,31 +335,14 @@ export default function Home() {
                 </button>
               ))}
             </div>
-            
-            {/* Submit button - always visible */}
-            <button
-              onClick={enhance}
-              disabled={loading || !input.trim()}
-              className="px-8 py-3.5 sm:py-2.5 bg-white text-black rounded-lg text-sm font-semibold font-mono hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2 min-h-[52px] sm:min-h-[44px] active:scale-[0.98] shadow-lg shadow-white/5"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  PROCESSING
-                </span>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4" />
-                  ENHANCE PROMPT
-                </>
-              )}
-            </button>
           </div>
 
-          {/* Keyboard shortcut hint */}
-          <p className="text-xs text-gray-600 mt-3 text-center sm:text-left">
-            Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Enter</kbd> to submit • <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Shift+Enter</kbd> for new line
-          </p>
+          {/* Keyboard shortcut hint — desktop only */}
+          {!isMobile && (
+            <p className="text-xs text-gray-600 mt-3 text-center sm:text-left transition-opacity duration-300">
+              Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Enter</kbd> to submit · <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Shift+Enter</kbd> for new line
+            </p>
+          )}
         </div>
 
         {/* Processing Status Indicator */}
