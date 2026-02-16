@@ -4,7 +4,7 @@ const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
 const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID;
 const MINIMAX_BASE_URL = 'https://api.minimax.io/v1';
 
-console.log('[MiniMax] API Key present:', !!MINIMAX_API_KEY, 'Key length:', MINIMAX_API_KEY?.length);
+console.log('[MiniMax] API Key present:', !!MINIMAX_API_KEY, 'Key length:', MINIMAX_API_KEY?.length, 'Group ID:', MINIMAX_GROUP_ID);
 
 interface PromptScore {
   clarity: number;

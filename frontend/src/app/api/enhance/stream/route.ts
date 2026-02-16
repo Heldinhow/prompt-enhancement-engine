@@ -4,7 +4,7 @@ const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
 const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID;
 const MINIMAX_BASE_URL = 'https://api.minimax.io/v1';
 
-console.log('[MiniMax] API Key present:', !!MINIMAX_API_KEY, 'Group ID:', !!MINIMAX_GROUP_ID);
+console.log('[MiniMax] API Key present:', !!MINIMAX_API_KEY, 'Key length:', MINIMAX_API_KEY?.length, 'Group ID:', MINIMAX_GROUP_ID);
 
 const SYSTEM_PROMPT = `You are a Prompt Enhancement Engine. Transform vague inputs into highly structured, executable prompts for AI agents.
 
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
             if (!response.ok) {
               const errorText = await response.text();
               console.error('[MiniMax] API error:', response.status, errorText);
-              throw new Error(`MiniMax API returned ${response.status}`);
+              throw new Error(`MiniMax API returned ${response.status}: ${errorText}`);
             }
 
             controller.enqueue(encoder.encode(`data: {"type": "status", "message": "Streaming response..."}\n\n`));
