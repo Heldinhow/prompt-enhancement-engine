@@ -20,15 +20,6 @@ interface PromptResponse {
   compact_version: string;
 }
 
-const MODES = [
-  { value: 'general', label: 'Geral' },
-  { value: 'coding', label: 'Código' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'produto', label: 'Produto' },
-  { value: 'ia', label: 'IA' },
-  { value: 'automacao', label: 'Automação' },
-];
-
 const STATUS_MESSAGES = [
   { key: 'Analyzing intent...', icon: Brain, color: 'text-blue-400' },
   { key: 'Calling MiniMax M2.5...', icon: Wand2, color: 'text-purple-400' },
@@ -47,7 +38,7 @@ const PLACEHOLDER_EXAMPLES = [
 
 export default function Home() {
   const [input, setInput] = useState('');
-  const [mode, setMode] = useState('general');
+  const [mode] = useState('general');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PromptResponse | null>(null);
   const [error, setError] = useState('');
@@ -59,15 +50,10 @@ export default function Home() {
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
   
   const streamingContentRef = useRef<HTMLPreElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const check = () => setIsMobile(window.innerWidth < 640);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
   }, []);
 
   useEffect(() => {
@@ -205,26 +191,6 @@ export default function Home() {
             maxChars={maxChars}
             placeholderExamples={PLACEHOLDER_EXAMPLES}
           />
-          
-          {/* Mode selector row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4">
-            <div className="flex gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0">
-              {MODES.map((m) => (
-                <button
-                  key={m.value}
-                  onClick={() => setMode(m.value)}
-                  disabled={loading}
-                  className={`px-3 py-2 sm:py-1.5 rounded-lg text-xs font-mono transition-all duration-150 whitespace-nowrap min-h-[44px] flex items-center ${
-                    mode === m.value
-                      ? 'bg-white text-black'
-                      : 'text-gray-500 hover:text-white hover:bg-white/5'
-                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Processing Status Indicator */}

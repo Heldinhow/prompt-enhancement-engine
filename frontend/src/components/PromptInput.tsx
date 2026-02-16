@@ -132,20 +132,7 @@ export function PromptInput({
         rows={3}
       />
 
-      <div className="flex items-center justify-between px-4 pb-3 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-3">
-          {!isMobile && !loading && !disabled && (
-            <span className="text-xs text-gray-600 font-mono hidden sm:block">
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-gray-500">Enter</kbd>
-              <span className="mx-1.5 text-gray-700">to send</span>
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-gray-500">Shift</kbd>
-              <span className="mx-1.5 text-gray-700">+</span>
-              <kbd className="px-1.5 py-0.5 bg-white/5 rounded text-gray-500">Enter</kbd>
-              <span className="ml-1.5 text-gray-700">new line</span>
-            </span>
-          )}
-        </div>
-
+      <div className="flex items-center justify-end px-4 pb-3 pt-2 border-t border-white/5">
         <div className="flex items-center gap-3">
           <span className={`text-xs font-mono ${getCharCounterColor()} hidden sm:block`}>
             {charCount.toLocaleString()} / {maxChars.toLocaleString()}
