@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Sparkles, Copy, Check, Target, Brain, Wand2, FileText, Gauge, Zap } from 'lucide-react';
+import { Sparkles, Copy, Check, Target, Brain, Wand2, FileText, Gauge, Zap, Terminal, Cpu, BarChart3, MessageSquareQuote, ArrowRight, ExternalLink } from 'lucide-react';
 import { PromptInput } from '@/components/PromptInput';
 
 interface PromptScore {
@@ -160,7 +160,32 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
-      <div className="max-w-3xl mx-auto px-6 py-16">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-lg font-semibold tracking-tight">Prompt Enhancement</span>
+          </div>
+          
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Product</a>
+            <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
+            <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Docs</a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block">Log in</a>
+            <a href="#" className="text-sm px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors">
+              Contact Sales
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-3xl mx-auto px-6 py-16 pt-24">
         
         {/* Header */}
         <div className="text-center mb-12">
@@ -186,7 +211,7 @@ export default function Home() {
             onChange={setInput}
             onSubmit={enhance}
             loading={loading}
-            disabled={!input.trim()}
+            disabled={loading}
             maxChars={maxChars}
             placeholderExamples={PLACEHOLDER_EXAMPLES}
           />
@@ -302,11 +327,118 @@ export default function Home() {
           </div>
         )}
 
+        {/* Features */}
+        <div className="mt-20">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-semibold tracking-tight mb-3">Key Features</h2>
+            <p className="text-gray-500 text-sm max-w-md mx-auto">
+              Everything you need to optimize your prompts for AI agents
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                <Cpu className="w-5 h-5 text-white/70" />
+              </div>
+              <h3 className="text-sm font-medium text-white mb-2">Smart Analysis</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Analyzes your prompts for clarity, specificity, and executability with detailed scoring.
+              </p>
+            </div>
+            
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                <BarChart3 className="w-5 h-5 text-white/70" />
+              </div>
+              <h3 className="text-sm font-medium text-white mb-2">Quality Metrics</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Get measurable scores and actionable improvements to enhance your prompt quality.
+              </p>
+            </div>
+            
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                <Terminal className="w-5 h-5 text-white/70" />
+              </div>
+              <h3 className="text-sm font-medium text-white mb-2">Structured Output</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Transforms vague prompts into well-structured, executable instructions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-20">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-semibold tracking-tight mb-3">What developers say</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+              <MessageSquareQuote className="w-5 h-5 text-white/30 mb-3" />
+              <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                "This tool has completely transformed how I write prompts. My AI interactions are now much more productive and predictable."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/10" />
+                <div>
+                  <p className="text-xs font-medium text-white">Sarah Chen</p>
+                  <p className="text-xs text-gray-600">Senior Developer</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+              <MessageSquareQuote className="w-5 h-5 text-white/30 mb-3" />
+              <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                "The quality scores help me understand exactly what makes a good prompt. Essential for anyone working with LLMs."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/10" />
+                <div>
+                  <p className="text-xs font-medium text-white">Marcus Johnson</p>
+                  <p className="text-xs text-gray-600">AI Engineer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="mt-16 text-center">
-          <p className="text-xs font-mono text-gray-700">
-            POWERED BY MINIMAX M2.5
-          </p>
+        <div className="mt-24 border-t border-white/5 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-4">Resources</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">API Reference</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Blog</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">About</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Privacy</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Terms</a></li>
+                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Security</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="text-center pt-8 border-t border-white/5">
+            <p className="text-xs font-mono text-gray-600">
+              POWERED BY MINIMAX M2.5
+            </p>
+          </div>
         </div>
       </div>
     </div>

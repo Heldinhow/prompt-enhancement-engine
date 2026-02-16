@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useCallback, useState, KeyboardEvent } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Terminal } from 'lucide-react';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea';
 
 interface PromptInputProps {
@@ -88,34 +88,38 @@ export function PromptInput({
         }
       `}
     >
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        placeholder={getPlaceholder()}
-        disabled={disabled || loading}
-        className={`
-          w-full
-          bg-transparent
-          px-5 py-4
-          text-base text-white
-          placeholder-gray-600
-          resize-none
-          focus:outline-none
-          leading-relaxed
-          font-sans
-          scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent
-          ${disabled ? 'cursor-not-allowed' : 'cursor-text'}
-        `}
-        style={{ 
-          minHeight: MIN_HEIGHT,
-          pointerEvents: disabled || loading ? 'none' : 'auto'
-        }}
-        rows={4}
-      />
+      <div className="flex items-start gap-3 px-5 pt-4">
+        <Terminal className="w-5 h-5 text-gray-500 mt-1 shrink-0" />
+        <div className="flex-1">
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={getPlaceholder()}
+            disabled={disabled || loading}
+            className={`
+              w-full
+              bg-transparent
+              text-base text-white
+              placeholder-gray-600
+              resize-none
+              focus:outline-none
+              leading-relaxed
+              font-sans
+              scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent
+              ${disabled ? 'cursor-not-allowed' : 'cursor-text'}
+            `}
+            style={{ 
+              minHeight: MIN_HEIGHT,
+              pointerEvents: disabled || loading ? 'none' : 'auto'
+            }}
+            rows={4}
+          />
+        </div>
+      </div>
 
       <div className="flex items-center justify-between px-4 pb-3 pt-2 border-t border-white/5">
         <span className={`text-xs font-mono ${getCharCounterColor()}`}>
