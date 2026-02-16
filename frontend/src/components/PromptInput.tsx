@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, KeyboardEvent } from 'react';
+import { useRef, useCallback, useState, KeyboardEvent } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea';
 
@@ -14,8 +14,8 @@ interface PromptInputProps {
   placeholderExamples?: string[];
 }
 
-const MIN_HEIGHT = 120;
-const MAX_HEIGHT = 240;
+const MIN_HEIGHT = 140;
+const MAX_HEIGHT = 280;
 
 export function PromptInput({
   value,
@@ -28,32 +28,22 @@ export function PromptInput({
 }: PromptInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   useAutoResizeTextarea(textareaRef, value, {
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   });
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (isMobile) return;
-      
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         if (!disabled && !loading && value.trim()) {
           onSubmit();
         }
       }
     },
-    [isMobile, disabled, loading, value, onSubmit]
+    [disabled, loading, value, onSubmit]
   );
 
   const handleChange = useCallback(
@@ -70,20 +60,16 @@ export function PromptInput({
   
   const getPlaceholder = () => {
     if (placeholderExamples && placeholderExamples.length > 0) {
-      return isMobile 
-        ? placeholderExamples[0] 
-        : placeholderExamples.join('\n');
+      return placeholderExamples[0];
     }
-    return isMobile 
-      ? 'Describe what you want...' 
-      : 'Create a SaaS landing page...\nGenerate a growth strategy...\nWrite a Python automation script...';
+    return 'Describe what you want AI to do...';
   };
 
   const getCharCounterColor = () => {
     const percentage = (charCount / maxChars) * 100;
     if (percentage >= 95) return 'text-red-400';
     if (percentage >= 80) return 'text-yellow-400';
-    return 'text-gray-500';
+    return 'text-gray-600';
   };
 
   return (
@@ -91,20 +77,16 @@ export function PromptInput({
       className={`
         w-full max-w-3xl mx-auto
         relative
-        bg-zinc-900/80
+        bg-white/[0.03]
         border rounded-2xl
         transition-all duration-200 ease-out
-        backdrop-blur-sm
-        ${disabled || loading ? 'opacity-60' : ''}
+        ${disabled || loading ? 'opacity-50' : ''}
         ${
           isFocused
-            ? 'border-purple-500 ring-2 ring-purple-500/20'
-            : 'border-white/10 hover:border-white/20'
+            ? 'border-white/20 ring-1 ring-white/10'
+            : 'border-white/5'
         }
       `}
-      style={{
-        paddingBottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom))' : undefined,
-      }}
     >
       <textarea
         ref={textareaRef}
@@ -129,44 +111,36 @@ export function PromptInput({
           ${disabled ? 'cursor-not-allowed' : 'cursor-text'}
         `}
         style={{ minHeight: MIN_HEIGHT }}
-        rows={3}
+        rows={4}
       />
 
-      <div className="flex items-center justify-end px-4 pb-3 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-3">
-          <span className={`text-xs font-mono ${getCharCounterColor()} hidden sm:block`}>
-            {charCount.toLocaleString()} / {maxChars.toLocaleString()}
-          </span>
+      <div className="flex items-center justify-between px-4 pb-3 pt-2 border-t border-white/5">
+        <span className={`text-xs font-mono ${getCharCounterColor()}`}>
+          {charCount.toLocaleString()} / {maxChars.toLocaleString()}
+        </span>
 
-          <button
-            onClick={onSubmit}
-            disabled={disabled || loading || !value.trim()}
-            className={`
-              flex items-center justify-center
-              min-h-[44px] min-w-[44px] px-4
-              bg-white text-black
-              rounded-xl
-              font-mono text-sm font-medium
-              transition-all duration-150
-              hover:bg-gray-200
-              active:scale-[0.98]
-              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white
-              ${loading ? 'bg-gray-100' : ''}
-            `}
-          >
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                <span className="hidden sm:inline">Processing</span>
-              </div>
-            ) : (
-              <>
-                <span className="hidden sm:inline mr-2">Send</span>
-                <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          onClick={onSubmit}
+          disabled={disabled || loading || !value.trim()}
+          className={`
+            flex items-center justify-center
+            h-9 px-4
+            bg-white text-black
+            rounded-lg
+            font-medium text-sm
+            transition-all duration-150
+            hover:bg-gray-200
+            active:scale-[0.98]
+            disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white
+            ${loading ? 'bg-gray-100' : ''}
+          `}
+        >
+          {loading ? (
+            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+          ) : (
+            <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+          )}
+        </button>
       </div>
     </div>
   );

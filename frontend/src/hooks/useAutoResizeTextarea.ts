@@ -20,18 +20,12 @@ export function useAutoResizeTextarea(
 
     const resize = () => {
       textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      
-      if (scrollHeight <= minHeight) {
-        textarea.style.height = `${minHeight}px`;
-        textarea.style.overflowY = 'hidden';
-      } else if (scrollHeight >= maxHeight) {
-        textarea.style.height = `${maxHeight}px`;
-        textarea.style.overflowY = 'auto';
-      } else {
-        textarea.style.height = `${scrollHeight}px`;
-        textarea.style.overflowY = 'hidden';
-      }
+      const newHeight = Math.max(
+        minHeight,
+        Math.min(textarea.scrollHeight, maxHeight)
+      );
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
     };
 
     resize();
