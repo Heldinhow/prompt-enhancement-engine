@@ -4,6 +4,8 @@ const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
 const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID;
 const MINIMAX_BASE_URL = 'https://api.minimax.io/v1';
 
+console.log('[MiniMax] API Key present:', !!MINIMAX_API_KEY, 'Group ID:', !!MINIMAX_GROUP_ID);
+
 const SYSTEM_PROMPT = `You are a Prompt Enhancement Engine. Transform vague inputs into highly structured, executable prompts for AI agents.
 
 Output format (MUST follow exactly):
