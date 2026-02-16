@@ -173,10 +173,29 @@ export default function Home() {
     }
   };
 
-  const copyToClipboard = (text: string, section: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(section);
-    setTimeout(() => setCopied(null), 2500);
+  const copyToClipboard = async (text: string, section: string) => {
+    try {
+      // Try modern API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for mobile/HTTP
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopied(section);
+      setTimeout(() => setCopied(null), 2500);
+    } catch (err) {
+      console.error('Copy failed:', err);
+    }
   };
 
   const toggleSection = (section: string) => {
@@ -369,94 +388,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Final Result */}
+        {/* Final Result - Only Optimized Prompt */}
         {result && !loading && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500" id="result-section">
             
-            {/* Score Section - Collapsible */}
-            <div className={`border rounded-xl overflow-hidden ${getScoreBg(result.score.final_score)} transition-all duration-300`}>
-              <button 
-                onClick={() => toggleSection('score')}
-                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-white/5 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-white/10 ring-1 ${getScoreRing(result.score.final_score)}`}>
-                    <Gauge className={`w-5 h-5 ${getScoreColor(result.score.final_score)}`} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Quality Score</div>
-                    <div className={`text-3xl font-bold font-mono ${getScoreColor(result.score.final_score)}`}>
-                      {result.score.final_score.toFixed(1)}
-                      <span className="text-lg text-gray-500 font-normal">/10</span>
-                    </div>
-                  </div>
-                </div>
-                {expandedSections.score ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-              
-              {expandedSections.score && (
-                <div className="px-4 sm:px-5 pb-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
-                  {[
-                    { label: 'Clarity', value: result.score.clarity, key: 'clarity' },
-                    { label: 'Specificity', value: result.score.specificity, key: 'specificity' },
-                    { label: 'Executability', value: result.score.executability, key: 'executability' },
-                    { label: 'Ambiguity Control', value: result.score.ambiguity_control, key: 'ambiguity_control' },
-                    { label: 'Structure', value: result.score.structure, key: 'structure' },
-                  ].map((item) => (
-                    <div 
-                      key={item.key} 
-                      className="text-center p-3 sm:p-4 rounded-lg bg-white/5 border border-white/5 min-h-[80px] flex flex-col justify-center"
-                    >
-                      <div className={`text-xl sm:text-2xl font-bold font-mono ${getScoreColor(item.value)}`}>
-                        {item.value.toFixed(0)}
-                      </div>
-                      <div className="text-[10px] sm:text-xs font-mono text-gray-500 mt-1 uppercase tracking-wider">{item.label}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Improvements Section - Collapsible */}
-            <div className="border border-white/10 rounded-xl overflow-hidden">
-              <button 
-                onClick={() => toggleSection('improvements')}
-                className="w-full flex items-center justify-between p-4 sm:p-4 hover:bg-white/5 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white/10">
-                    <Layers className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">
-                    {result.improvements_applied.length} Improvements Applied
-                  </span>
-                </div>
-                {expandedSections.improvements ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-              
-              {expandedSections.improvements && (
-                <div className="px-4 pb-4 flex flex-wrap gap-2">
-                  {result.improvements_applied.map((imp, i) => (
-                    <span 
-                      key={i} 
-                      className="px-3 py-2 rounded-lg bg-blue-500/10 text-blue-300 text-xs font-mono border border-blue-500/20"
-                    >
-                      {imp}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Optimized Prompt Section - Always visible */}
+            {/* Optimized Prompt Section - Only content shown */}
             <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-900/50">
               <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-white/10 bg-white/5">
                 <div className="flex items-center gap-3">
@@ -485,58 +421,6 @@ export default function Home() {
               <pre className="p-4 sm:p-5 text-sm font-mono text-gray-300 whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto custom-scrollbar">
                 {result.optimized_prompt}
               </pre>
-            </div>
-
-            {/* Compact Version - Collapsible */}
-            <div className="border border-white/10 rounded-xl overflow-hidden">
-              <button 
-                onClick={() => toggleSection('compact')}
-                className="w-full flex items-center justify-between px-4 sm:px-5 py-3 hover:bg-white/5 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white/10">
-                    <Zap className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Short Version</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyToClipboard(result.compact_version, 'compact');
-                    }}
-                    className="flex items-center gap-1.5 text-xs font-mono text-gray-500 hover:text-white min-h-[36px] px-2 py-1 rounded hover:bg-white/10 transition-colors mr-2"
-                  >
-                    {copied === 'compact' ? (
-                      <>
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-400">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" />
-                      </>
-                    )}
-                  </button>
-                  {expandedSections.compact !== undefined ? (
-                    expandedSections.compact ? (
-                      <ChevronUp className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
-                    )
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
-                  )}
-                </div>
-              </button>
-              
-              {expandedSections.compact !== false && (
-                <div className="px-4 sm:px-5 pb-4">
-                  <div className="p-4 bg-zinc-800/50 rounded-lg border border-white/5">
-                    <span className="text-sm font-mono text-gray-400">{result.compact_version}</span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}

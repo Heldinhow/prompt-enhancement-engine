@@ -12,6 +12,25 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Gradient floor effect */
+body::before {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40vh;
+  background: linear-gradient(to top, 
+    rgba(88, 28, 135, 0.15) 0%, 
+    rgba(88, 28, 135, 0.08) 30%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 * {
