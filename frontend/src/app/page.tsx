@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, Copy, Check, Zap, Target, Layers, Brain, Wand2, FileText, Gauge, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Sparkles, Copy, Check, Target, Brain, Wand2, FileText, Gauge } from 'lucide-react';
+import { PromptInput } from '@/components/PromptInput';
 
 interface PromptScore {
   clarity: number;
@@ -28,7 +29,6 @@ const MODES = [
   { value: 'automacao', label: 'Automação' },
 ];
 
-// Processing status messages for visual feedback
 const STATUS_MESSAGES = [
   { key: 'Analyzing intent...', icon: Brain, color: 'text-blue-400' },
   { key: 'Calling MiniMax M2.5...', icon: Wand2, color: 'text-purple-400' },
@@ -38,7 +38,6 @@ const STATUS_MESSAGES = [
   { key: 'Calculating quality score...', icon: Gauge, color: 'text-green-400' },
 ];
 
-// Placeholder examples
 const PLACEHOLDER_EXAMPLES = [
   "Create a Python script that fetches data from an API and saves it to a CSV file",
   "Write a marketing email for a new eco-friendly product launch",
@@ -53,26 +52,16 @@ export default function Home() {
   const [result, setResult] = useState<PromptResponse | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    score: true,
-    improvements: true,
-    optimized: true,
-  });
   
-  // Streaming state
   const [streamingContent, setStreamingContent] = useState('');
   const [currentStatus, setCurrentStatus] = useState('');
-  const [statusIcon, setStatusIcon] = useState<typeof Brain>(Brain);
   const [statusColor, setStatusColor] = useState('text-blue-400');
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
   
   const streamingContentRef = useRef<HTMLPreElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isFocused, setIsFocused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Detect mobile
   useEffect(() => {
     setMounted(true);
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -81,37 +70,11 @@ export default function Home() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Auto-resize textarea
-  const adjustTextareaHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 120), 240);
-      textarea.style.height = newHeight + 'px';
-    }
-  }, []);
-
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [input, adjustTextareaHeight]);
-
-  // Auto-scroll streaming content
   useEffect(() => {
     if (streamingContentRef.current) {
       streamingContentRef.current.scrollTop = streamingContentRef.current.scrollHeight;
     }
   }, [streamingContent]);
-
-  // Keyboard shortcut handler — desktop only (Enter=submit, Shift+Enter=newline)
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (isMobile) return; // mobile submits via button only
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (!loading && input.trim()) {
-        enhance();
-      }
-    }
-  };
 
   const enhance = async () => {
     if (!input.trim()) return;
@@ -122,9 +85,7 @@ export default function Home() {
     setStreamingContent('');
     setCurrentStatus('Initializing...');
     setShowTypingIndicator(true);
-    setExpandedSections({ score: true, improvements: true, optimized: true });
 
-    // Focus on result area
     setTimeout(() => {
       document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -157,10 +118,8 @@ export default function Home() {
               
               if (data.type === 'status') {
                 setCurrentStatus(data.message);
-                // Find matching status message for icon/color
                 const statusInfo = STATUS_MESSAGES.find(s => data.message.includes(s.key.split('...')[0]));
                 if (statusInfo) {
-                  setStatusIcon(statusInfo.icon);
                   setStatusColor(statusInfo.color);
                 }
               } else if (data.type === 'chunk') {
@@ -178,7 +137,7 @@ export default function Home() {
           }
         }
       }
-    } catch (err) {
+    } catch {
       setError('Falha ao processar. Tente novamente.');
       setShowTypingIndicator(false);
     } finally {
@@ -188,11 +147,9 @@ export default function Home() {
 
   const copyToClipboard = async (text: string, section: string) => {
     try {
-      // Try modern API first
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
       } else {
-        // Fallback for mobile/HTTP
         const textArea = document.createElement('textarea');
         textArea.value = text;
         textArea.style.position = 'fixed';
@@ -211,38 +168,13 @@ export default function Home() {
     }
   };
 
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-emerald-400';
-    if (score >= 6) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 8) return 'bg-emerald-500/10 border-emerald-500/20';
-    if (score >= 6) return 'bg-yellow-500/10 border-yellow-500/20';
-    return 'bg-red-500/10 border-red-500/20';
-  };
-
-  const getScoreRing = (score: number) => {
-    if (score >= 8) return 'ring-emerald-500/30';
-    if (score >= 6) return 'ring-yellow-500/30';
-    return 'ring-red-500/30';
-  };
-
-  // Determine if we're in streaming mode (content coming in but no final result yet)
   const isStreaming = loading && (streamingContent || currentStatus);
-  const charCount = input.length;
   const maxChars = 4000;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         
-        {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 mb-5 sm:mb-6 font-mono tracking-wider">
             <Sparkles className="w-3 h-3" />
@@ -259,63 +191,20 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Input Section */}
+        {/* Input Section - Using PromptInput Component */}
         <div
-          className={`mb-6 sm:mb-10 w-full transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+          className={`mb-6 sm:mb-8 w-full transition-opacity duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          {/* Input container — elevated dark bg, rounded, focus glow */}
-          <div
-            className={`relative w-full rounded-2xl sm:rounded-3xl bg-zinc-900/90 border transition-all duration-[180ms] ease-out ${
-              isFocused
-                ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)] ring-1 ring-purple-500/30'
-                : 'border-white/10 shadow-lg shadow-black/20'
-            }`}
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value.slice(0, maxChars))}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder={PLACEHOLDER_EXAMPLES[Math.floor(Math.random() * PLACEHOLDER_EXAMPLES.length)]}
-              className="w-full bg-transparent rounded-2xl sm:rounded-3xl p-4 sm:p-5 pb-14 text-white placeholder-gray-500 focus:outline-none resize-none font-mono text-base leading-relaxed transition-colors duration-[180ms] scroll-smooth"
-              style={{ minHeight: '120px', maxHeight: '240px', overflowY: 'auto' }}
-              disabled={loading}
-              aria-label="Enter your prompt to enhance"
-            />
-            
-            {/* Bottom bar inside container: char counter + submit button */}
-            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between pointer-events-none">
-              {/* Character counter */}
-              <span className="text-xs font-mono select-none">
-                <span className={charCount > maxChars * 0.9 ? (charCount > maxChars * 0.95 ? 'text-red-400 font-semibold' : 'text-amber-400') : 'text-gray-600'}>
-                  {charCount}
-                </span>
-                <span className="text-gray-700"> / {maxChars}</span>
-              </span>
-
-              {/* Submit button — always visible, bottom-right */}
-              <button
-                onClick={enhance}
-                disabled={loading || !input.trim()}
-                className="pointer-events-auto min-h-[44px] px-5 py-2.5 bg-white text-black rounded-xl text-sm font-semibold font-mono hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg shadow-white/5"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    <span className="hidden sm:inline">PROCESSING</span>
-                  </span>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4" />
-                    <span>ENHANCE</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+          <PromptInput
+            value={input}
+            onChange={setInput}
+            onSubmit={enhance}
+            loading={loading}
+            disabled={!input.trim()}
+            maxChars={maxChars}
+            placeholderExamples={PLACEHOLDER_EXAMPLES}
+          />
           
           {/* Mode selector row */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4">
@@ -336,13 +225,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-
-          {/* Keyboard shortcut hint — desktop only */}
-          {!isMobile && (
-            <p className="text-xs text-gray-600 mt-3 text-center sm:text-left transition-opacity duration-300">
-              Press <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Enter</kbd> to submit · <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-gray-400 font-mono text-[10px]">Shift+Enter</kbd> for new line
-            </p>
-          )}
         </div>
 
         {/* Processing Status Indicator */}
