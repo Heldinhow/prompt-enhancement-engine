@@ -1,0 +1,75 @@
+2026-02-16T13:35:49.365164Z  INFO tailwindcss_oxide::scanner: Provided sources:
+2026-02-16T13:35:49.365225Z  INFO tailwindcss_oxide::scanner: Source: PublicSourceEntry { base: "/root/.openclaw/workspace/prompt-enhancement-engine/frontend", pattern: "**/*", negated: false }
+2026-02-16T13:35:49.365285Z  INFO tailwindcss_oxide::scanner: Optimized sources:
+2026-02-16T13:35:49.365290Z  INFO tailwindcss_oxide::scanner: Source: Auto { base: "/root/.openclaw/workspace/prompt-enhancement-engine/frontend" }
+2026-02-16T13:35:49.366452Z  INFO scan_sources: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.366916Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/eslint.config.mjs"
+2026-02-16T13:35:49.366970Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/postcss.config.mjs"
+2026-02-16T13:35:49.368771Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public"
+2026-02-16T13:35:49.368824Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/next.svg"
+2026-02-16T13:35:49.368842Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/globe.svg"
+2026-02-16T13:35:49.368858Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/window.svg"
+2026-02-16T13:35:49.368874Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/file.svg"
+2026-02-16T13:35:49.368890Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/vercel.svg"
+2026-02-16T13:35:49.368914Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/tsconfig.json"
+2026-02-16T13:35:49.368930Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/next.config.ts"
+2026-02-16T13:35:49.369006Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/README.md"
+2026-02-16T13:35:49.369036Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src"
+2026-02-16T13:35:49.369075Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app"
+2026-02-16T13:35:49.369108Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/page.tsx"
+2026-02-16T13:35:49.369133Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api"
+2026-02-16T13:35:49.369186Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api/enhance"
+2026-02-16T13:35:49.369219Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api/enhance/route.ts"
+2026-02-16T13:35:49.369242Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/globals.css"
+2026-02-16T13:35:49.369258Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/layout.tsx"
+2026-02-16T13:35:49.369286Z  INFO scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/package.json"
+2026-02-16T13:35:49.369360Z  INFO scan_sources: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.369366Z  INFO extract_candidates: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.369372Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.369385Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading 14 file(s)
+2026-02-16T13:35:49.370085Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/eslint.config.mjs"
+2026-02-16T13:35:49.370110Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/postcss.config.mjs"
+2026-02-16T13:35:49.370142Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/next.svg"
+2026-02-16T13:35:49.370156Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/globe.svg"
+2026-02-16T13:35:49.370169Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/window.svg"
+2026-02-16T13:35:49.370182Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/file.svg"
+2026-02-16T13:35:49.370199Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public/vercel.svg"
+2026-02-16T13:35:49.370215Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/tsconfig.json"
+2026-02-16T13:35:49.370231Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/next.config.ts"
+2026-02-16T13:35:49.370245Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/README.md"
+2026-02-16T13:35:49.370271Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/page.tsx"
+2026-02-16T13:35:49.370290Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api/enhance/route.ts"
+2026-02-16T13:35:49.370309Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/layout.tsx"
+2026-02-16T13:35:49.370323Z  INFO tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/package.json"
+2026-02-16T13:35:49.370445Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.370458Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.370463Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.371278Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.371299Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.371305Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.371309Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading 1 file(s)
+2026-02-16T13:35:49.371328Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/globals.css"
+2026-02-16T13:35:49.371335Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.371340Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.371344Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.371448Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.371454Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.371732Z  INFO extract_candidates: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.372558Z  INFO get_files: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.372579Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.373147Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public"
+2026-02-16T13:35:49.373378Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src"
+2026-02-16T13:35:49.373431Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app"
+2026-02-16T13:35:49.373482Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api"
+2026-02-16T13:35:49.373552Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api/enhance"
+2026-02-16T13:35:49.373732Z  INFO get_files:scan_sources: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.373852Z  INFO get_files: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.374029Z  INFO get_globs: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.374055Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: enter
+2026-02-16T13:35:49.374491Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/public"
+2026-02-16T13:35:49.374649Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src"
+2026-02-16T13:35:49.374727Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app"
+2026-02-16T13:35:49.374779Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api"
+2026-02-16T13:35:49.374825Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: Discovering "/root/.openclaw/workspace/prompt-enhancement-engine/frontend/src/app/api/enhance"
+2026-02-16T13:35:49.374944Z  INFO get_globs:scan_sources: tailwindcss_oxide::scanner: exit
+2026-02-16T13:35:49.376212Z  INFO get_globs: tailwindcss_oxide::scanner: exit

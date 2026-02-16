@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PEE.Agents/PEE.Agents.csproj" />
+    <Project Path="src/PEE.Api/PEE.Api.csproj" />
+    <Project Path="src/PEE.Core/PEE.Core.csproj" />
+  </Folder>
+</Solution>

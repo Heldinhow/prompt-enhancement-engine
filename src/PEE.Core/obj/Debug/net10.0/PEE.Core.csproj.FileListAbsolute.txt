@@ -1,0 +1,11 @@
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/bin/Debug/net10.0/PEE.Core.deps.json
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/bin/Debug/net10.0/PEE.Core.dll
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/bin/Debug/net10.0/PEE.Core.pdb
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.GeneratedMSBuildEditorConfig.editorconfig
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.AssemblyInfoInputs.cache
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.AssemblyInfo.cs
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.csproj.CoreCompileInputs.cache
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.dll
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/refint/PEE.Core.dll
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/PEE.Core.pdb
+/root/.openclaw/workspace/prompt-enhancement-engine/src/PEE.Core/obj/Debug/net10.0/ref/PEE.Core.dll
