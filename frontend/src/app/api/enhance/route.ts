@@ -69,16 +69,20 @@ function calculateScore(prompt: string): PromptScore {
   return score;
 }
 
-function generateStructuredPrompt(input: string, mode: string): string {
+function generateStructuredPrompt(input: string, mode: string, detailLevel: string = 'detailed'): string {
+  if (detailLevel === 'simple') {
+    return `Eu quero: ${input}`;
+  }
+
   return `# CONTEXTO
-Usuário solicitou: ${input}
+Eu quero: ${input}
 Modo: ${mode}
 
 # PAPEL DO AGENTE
 Especialista em ${mode} com capacidade de análise e execução de tarefas complexas.
 
 # OBJETIVO
-Executar a solicitação do usuário de forma eficiente e otimizada.
+Executar o que eu quero de forma eficiente e otimizada.
 
 # ESCOPO
 Inclui: Análise, planejamento, execução
@@ -119,7 +123,7 @@ function buildApiUrl(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { input, mode = 'general' } = await req.json();
+    const { input, mode = 'general', detail_level = 'detailed' } = await req.json();
 
     if (!input) {
       return NextResponse.json({ error: 'Input is required' }, { status: 400 });
@@ -127,6 +131,9 @@ export async function POST(req: NextRequest) {
 
     let optimizedPrompt: string;
     let usedRealApi = false;
+    const systemPrompt = detail_level === 'simple' 
+      ? `You are a helpful assistant. Rewrite the user's request to be clearer and more direct. Use first person ("eu quero"). Keep it brief and natural.`
+      : SYSTEM_PROMPT;
 
     // Use real MiniMax API if key is available
     if (MINIMAX_API_KEY && MINIMAX_API_KEY.trim() !== '') {
@@ -144,7 +151,9 @@ export async function POST(req: NextRequest) {
             model: 'MiniMax-M2.5',
             messages: [
               { role: 'system', content: SYSTEM_PROMPT },
-              { role: 'user', content: `Input original: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
+              { role: 'user', content: detail_level === 'simple' 
+                ? `Eu quero: ${input}\n\nMelhore este prompt de forma simples e direta.`
+                : `Eu quero: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
             ],
             temperature: 0.7,
             max_tokens: 4096,
@@ -169,11 +178,11 @@ export async function POST(req: NextRequest) {
         }
       } catch (apiError) {
         console.error('[MiniMax] API call failed, using fallback:', apiError);
-        optimizedPrompt = generateStructuredPrompt(input, mode);
+        optimizedPrompt = generateStructuredPrompt(input, mode, detail_level);
       }
     } else {
       console.warn('[MiniMax] No API key found, using template fallback');
-      optimizedPrompt = generateStructuredPrompt(input, mode);
+      optimizedPrompt = generateStructuredPrompt(input, mode, detail_level);
     }
 
     const score = calculateScore(optimizedPrompt);

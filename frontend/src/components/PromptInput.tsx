@@ -139,7 +139,7 @@ export function PromptInput({
                     : 'text-gray-500 hover:text-gray-300'}
                 `}
               >
-                Simple
+                Simples
               </button>
               <button
                 type="button"
@@ -151,7 +151,7 @@ export function PromptInput({
                     : 'text-gray-500 hover:text-gray-300'}
                 `}
               >
-                Detailed
+                Detalhado
               </button>
             </div>
           )}

@@ -64,9 +64,13 @@ function calculateScore(prompt: string): any {
   return score;
 }
 
-function generateStructuredPrompt(input: string, mode: string): string {
+function generateStructuredPrompt(input: string, mode: string, detailLevel: string = 'detailed'): string {
+  if (detailLevel === 'simple') {
+    return `Eu quero: ${input}`;
+  }
+
   return `# CONTEXTO
-Usuário solicitou: ${input}
+Eu quero: ${input}
 Modo: ${mode}
 
 # PAPEL DO AGENTE
@@ -107,7 +111,7 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const { input, mode = 'general' } = await req.json();
+        const { input, mode = 'general', detail_level = 'detailed' } = await req.json();
 
         if (!input) {
           controller.enqueue(encoder.encode(`data: {"error": "Input is required"}\n\n`));
@@ -135,8 +139,12 @@ export async function POST(req: NextRequest) {
               body: JSON.stringify({
                 model: 'MiniMax-M2.5',
                 messages: [
-                  { role: 'system', content: SYSTEM_PROMPT },
-                  { role: 'user', content: `Input original: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
+                  { role: 'system', content: detail_level === 'simple' 
+                    ? `You are a helpful assistant. Rewrite the user's request to be clearer and more direct. Use first person ("eu quero"). Keep it brief and natural.`
+                    : SYSTEM_PROMPT },
+                  { role: 'user', content: detail_level === 'simple' 
+                    ? `Eu quero: ${input}\n\nMelhore este prompt de forma simples e direta.`
+                    : `Eu quero: ${input}\n\nModo: ${mode}\n\nGere o prompt estruturado seguindo o formato definido.` }
                 ],
                 temperature: 0.7,
                 max_tokens: 4096,
@@ -196,20 +204,20 @@ export async function POST(req: NextRequest) {
               usedRealApi = true;
             } else {
               // Fallback if no streaming content
-              optimizedPrompt = generateStructuredPrompt(input, mode);
+              optimizedPrompt = generateStructuredPrompt(input, mode, detail_level);
             }
 
           } catch (apiError) {
             console.error('[MiniMax] Streaming failed, using fallback:', apiError);
             controller.enqueue(encoder.encode(`data: {"type": "status", "message": "Using template fallback..."}\n\n`));
-            optimizedPrompt = generateStructuredPrompt(input, mode);
+            optimizedPrompt = generateStructuredPrompt(input, mode, detail_level);
           }
         } else {
           console.warn('[MiniMax] No API key found, using template fallback');
           controller.enqueue(encoder.encode(`data: {"type": "status", "message": "Generating template..."}\n\n`));
           
           // Simulate streaming for template
-          const template = generateStructuredPrompt(input, mode);
+          const template = generateStructuredPrompt(input, mode, detail_level);
           const words = template.split(/(\s+)/);
           
           for (const word of words) {
