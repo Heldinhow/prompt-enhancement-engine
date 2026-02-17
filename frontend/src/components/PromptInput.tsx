@@ -12,6 +12,8 @@ interface PromptInputProps {
   disabled?: boolean;
   maxChars?: number;
   placeholderExamples?: string[];
+  detailLevel?: 'simple' | 'detailed';
+  onDetailLevelChange?: (level: 'simple' | 'detailed') => void;
 }
 
 const MIN_HEIGHT = 140;
@@ -25,6 +27,8 @@ export function PromptInput({
   disabled = false,
   maxChars = 4000,
   placeholderExamples,
+  detailLevel = 'simple',
+  onDetailLevelChange,
 }: PromptInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -122,9 +126,42 @@ export function PromptInput({
       </div>
 
       <div className="flex items-center justify-between px-4 pb-3 pt-2 border-t border-white/5">
-        <span className={`text-xs font-mono ${getCharCounterColor()}`}>
-          {charCount.toLocaleString()} / {maxChars.toLocaleString()}
-        </span>
+        <div className="flex items-center gap-2">
+          {onDetailLevelChange && (
+            <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => onDetailLevelChange('simple')}
+                className={`
+                  px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150
+                  ${detailLevel === 'simple' 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-500 hover:text-gray-300'}
+                `}
+              >
+                Simple
+              </button>
+              <button
+                type="button"
+                onClick={() => onDetailLevelChange('detailed')}
+                className={`
+                  px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150
+                  ${detailLevel === 'detailed' 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-500 hover:text-gray-300'}
+                `}
+              >
+                Detailed
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-mono ${getCharCounterColor()}`}>
+            {charCount.toLocaleString()} / {maxChars.toLocaleString()}
+          </span>
+        </div>
 
         <button
           onClick={onSubmit}

@@ -37,6 +37,7 @@ const PLACEHOLDER_EXAMPLES = [
 
 export default function Home() {
   const [input, setInput] = useState('');
+  const [detailLevel, setDetailLevel] = useState<'simple' | 'detailed'>('simple');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PromptResponse | null>(null);
   const [error, setError] = useState('');
@@ -71,7 +72,7 @@ export default function Home() {
       const response = await fetch('/api/enhance/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input, mode: 'general' }),
+        body: JSON.stringify({ input, mode: 'general', detail_level: detailLevel }),
       });
 
       if (!response.ok) throw new Error('Erro ao processar');
@@ -213,6 +214,8 @@ export default function Home() {
             disabled={loading}
             maxChars={maxChars}
             placeholderExamples={PLACEHOLDER_EXAMPLES}
+            detailLevel={detailLevel}
+            onDetailLevelChange={setDetailLevel}
           />
         </div>
 
