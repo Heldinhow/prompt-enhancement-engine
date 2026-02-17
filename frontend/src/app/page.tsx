@@ -172,7 +172,6 @@ export default function Home() {
           
           <nav className="hidden md:flex items-center gap-8">
             <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Product</a>
-            <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
             <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Docs</a>
           </nav>
 
@@ -326,85 +325,6 @@ export default function Home() {
             )}
           </div>
         )}
-
-        {/* Features */}
-        <div className="mt-20">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-semibold tracking-tight mb-3">Key Features</h2>
-            <p className="text-gray-500 text-sm max-w-md mx-auto">
-              Everything you need to optimize your prompts for AI agents
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
-                <Cpu className="w-5 h-5 text-white/70" />
-              </div>
-              <h3 className="text-sm font-medium text-white mb-2">Smart Analysis</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Analyzes your prompts for clarity, specificity, and executability with detailed scoring.
-              </p>
-            </div>
-            
-            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
-                <BarChart3 className="w-5 h-5 text-white/70" />
-              </div>
-              <h3 className="text-sm font-medium text-white mb-2">Quality Metrics</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Get measurable scores and actionable improvements to enhance your prompt quality.
-              </p>
-            </div>
-            
-            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4">
-                <Terminal className="w-5 h-5 text-white/70" />
-              </div>
-              <h3 className="text-sm font-medium text-white mb-2">Structured Output</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Transforms vague prompts into well-structured, executable instructions.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Testimonials */}
-        <div className="mt-20">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-semibold tracking-tight mb-3">What developers say</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
-              <MessageSquareQuote className="w-5 h-5 text-white/30 mb-3" />
-              <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                "This tool has completely transformed how I write prompts. My AI interactions are now much more productive and predictable."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10" />
-                <div>
-                  <p className="text-xs font-medium text-white">Sarah Chen</p>
-                  <p className="text-xs text-gray-600">Senior Developer</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
-              <MessageSquareQuote className="w-5 h-5 text-white/30 mb-3" />
-              <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                "The quality scores help me understand exactly what makes a good prompt. Essential for anyone working with LLMs."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10" />
-                <div>
-                  <p className="text-xs font-medium text-white">Marcus Johnson</p>
-                  <p className="text-xs text-gray-600">AI Engineer</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Footer */}
         <div className="mt-24 border-t border-white/5 pt-12">
